@@ -1,21 +1,30 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #ffffff; /* Light mode background */
+  --foreground: #171717; /* Light mode text */
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #0a0a0a; /* Dark mode background */
+    --foreground: #ededed; /* Dark mode text */
   }
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  padding: 0;
+  color: var(--foreground); /* Dynamic text color */
+  background: var(--background); /* Dynamic background color */
+  font-family: Arial, Helvetica, sans-serif; /* Default font */
+  line-height: 1.6; /* Improve readability */
+  transition: background 0.3s ease, color 0.3s ease; /* Smooth transition between modes */
+}
+
+a {
+  color: inherit; /* Use the same color as text */
+  text-decoration: none; /* Remove underline by default */
+}
+
+* {
+  box-sizing: border-box; /* Consistent box sizing */
 }
