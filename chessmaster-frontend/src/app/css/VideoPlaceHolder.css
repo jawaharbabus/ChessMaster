@@ -1,0 +1,47 @@
+/* Container for the video element and controls */
+.video-container {
+    position: relative;
+    width: 18rem; /* Matches Tailwind w-72 */
+    height: 18rem; /* Matches Tailwind h-72 */
+  }
+  
+  /* Video element styling */
+  .video-element {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 12px; /* Matches Tailwind rounded-lg */
+  }
+  
+  /* Controls container */
+  .video-controls {
+    position: absolute;
+    bottom: 8px; /* Matches bottom-2 */
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 16px; /* Matches space-x-4 */
+    background-color: rgba(0, 0, 0, 0.7); /* Matches bg-black bg-opacity-70 */
+    border-radius: 999px; /* Matches rounded-full */
+    padding: 8px;
+  }
+  
+  /* Individual control buttons */
+  .control-button {
+    color: white; /* Matches text-white */
+    font-size: 1.25rem; /* Matches text-lg */
+    padding: 8px;
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .control-button:focus {
+    outline: none;
+    box-shadow: 0 0 4px white; /* Adds focus indication */
+  }
+  
+  .control-button:hover {
+    color: #f0f0f0; /* Slightly lighter hover effect */
+  }
+  

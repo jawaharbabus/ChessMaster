@@ -3,6 +3,21 @@
     "configurations": [
         
         {
+            "name": "Attach to Chrome",
+            "port": 3000,
+            "request": "attach",
+            "type": "chrome",
+            "webRoot": "${workspaceFolder}",
+            "sourceMaps": true,
+            // "breakOnLoad": true,
+            "sourceMapPathOverrides": {
+            "webpack:///./src/*": "${webRoot}/dist/*",
+            "webpack:///src/*": "${webRoot}/dist/*"
+            }
+        },
+
+        
+        {
             "type": "node",
             "request": "launch",
             "name": "Debug Next.js App",

@@ -1,78 +1,96 @@
 "use client";
 import React, { FC, useState } from "react";
+import { FaChessKing } from "react-icons/fa"; // King icons
+import "../css/DialogBox.css";
+
+type typeColor = "white" | "black";
+type typeTime = 10 | 15 | 20 | 30 | null;
 
 interface DialogBoxProps {
   onSubmit: (
     userName: string,
     roomName: string,
-    color: "white" | "black"
+    color: typeColor,
+    time: typeTime
   ) => void;
 }
-type typeColor = "white" | "black";
 
 const DialogBox: FC<DialogBoxProps> = ({ onSubmit }) => {
   const [userName, setUserName] = useState("");
   const [roomName, setRoomName] = useState("");
   const [color, setColor] = useState<typeColor>("white");
+  const [time, setTime] = useState<typeTime>(null);
 
   const handleSubmit = () => {
     if (userName && roomName) {
-      onSubmit(userName, roomName, color);
+      onSubmit(userName, roomName, color, time);
     } else {
       alert("Please fill in all fields.");
     }
   };
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setTime(val === "" ? null : (Number(val) as typeTime));
+  };
+
   return (
-    <div
-      style={{
-        position: "absolute",
-        top: "50%",
-        left: "50%",
-        transform: "translate(-50%, -50%)",
-        backgroundColor: "#fff",
-        padding: "20px",
-        borderRadius: "10px",
-        boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
-        textAlign: "center",
-      }}
-    >
-      <h2>Enter Game Details</h2>
-      <div>
+    <div className="dialog-box">
+      <h2 className="dialog-title">Enter Game Details</h2>
+      <div className="dialog-field">
         <input
           type="text"
           placeholder="Your Name"
           value={userName}
           onChange={(e) => setUserName(e.target.value)}
-          style={{ marginBottom: "10px", width: "100%" }}
+          className="dialog-input"
         />
       </div>
-      <div>
+      <div className="dialog-field">
         <input
           type="text"
           placeholder="Room Name"
           value={roomName}
           onChange={(e) => setRoomName(e.target.value)}
-          style={{ marginBottom: "10px", width: "100%" }}
+          className="dialog-input"
         />
       </div>
-      <div>
-        <label>
-          Choose Color:
-          <select
-            value={color}
-            onChange={(e) => setColor(e.target.value as typeColor)}
-            style={{ marginLeft: "10px" }}
+      <div className="dialog-field">
+        <label>Choose Color:</label>
+        <div className="color-selector">
+          <div
+            className={`color-option ${color === "white" ? "selected" : ""}`}
+            onClick={() => setColor("white")}
           >
-            <option value="white">White</option>
-            <option value="black">Black</option>
-          </select>
-        </label>
+            <FaChessKing size={24} className="white-king-icon" />
+            <span>White</span>
+          </div>
+          <div
+            className={`color-option ${color === "black" ? "selected" : ""}`}
+            onClick={() => setColor("black")}
+          >
+            <FaChessKing size={24} className="black-king-icon" />
+            <span>Black</span>
+          </div>
+          <div
+            className={`color-slider ${color === "white" ? "left" : "right"}`}
+          />
+        </div>
+        <div className="dialog-field">
+          <label>Time (minutes)</label>
+          <input
+            className="dialog-input time-input"
+            type="number"
+            min="10"
+            max="30"
+            step="5"
+            placeholder="No time"
+            value={time ?? ""}
+            onChange={handleChange}
+          />
+        </div>
       </div>
-      <button
-        onClick={handleSubmit}
-        style={{ marginTop: "10px", padding: "10px", width: "100%" }}
-      >
+      <button onClick={handleSubmit} className="dialog-button">
         Start Game
       </button>
     </div>

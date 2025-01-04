@@ -1,0 +1,71 @@
+/* Main Layout */
+.chess-layout {
+    display: grid;
+    grid-template-columns: 20% 60% 20%;
+    width: 100%;
+    height: 100vh;
+    /* background-color: #121212; */
+    color: #ffffff; /* White text for contrast */
+  }
+  
+  /* Left Panel */
+  .left-panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 10px;
+  }
+  
+  .timer {
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: bold;
+  }
+  
+  .top-timer {
+    /* align-self: flex-start;
+     */
+     width: 100%;
+  }
+  
+  .bottom-timer {
+    /* align-self: flex-end;
+     */
+     width: 100%;
+  }
+  
+  .game-info {
+    flex-grow: 1;
+    text-align: center;
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+  
+  /* Center Panel */
+  .center-panel {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  /* Right Panel */
+  .right-panel {
+    /* display: flex; */
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+  }
+  
+  .video-stream {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+  }
+  
+  .video-element {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+  }
+  

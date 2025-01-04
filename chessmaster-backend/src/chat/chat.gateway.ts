@@ -12,12 +12,15 @@ interface Client {
   id: string;
   name: string;
   color: "white" | "black";
+  callerId: string;
 };
 
-@WebSocketGateway(4000,{
+@WebSocketGateway({
   cors: {
     origin: '*', // Allow all origins for testing; restrict in production
   },
+  // transports: ['websocket', 'polling'],
+  // secure: true,
 })
 
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -44,14 +47,14 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('joinRoom')
-  handleJoinRoom(client: Socket, {room,name,color}:{room: string, name:string, color: 'white'|'black'}) {
-
+  handleJoinRoom(client: Socket, {room,name,color,callerId}:{room: string, name:string, color: 'white'|'black', callerId: string}) {
+    console.log(`entered joinRoom with room: ${room}, name: ${name}, color: ${color}, callerId: ${callerId}`);
     if (!this.rooms[room]) {
       this.rooms[room] = [];
     }
 
     if (this.rooms[room].length >= 2) {
-      client.emit('roomJoinFail', 'This room already has two participants.');
+      client.emit('error', 'This room already has two participants.');
       return 'Room full';
     }
     
@@ -60,20 +63,21 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const isColorTaken = this.rooms[room].some((existingClient) => existingClient.color === color);
 
     if (isNameTaken) {
-      client.emit('roomJoinFail', `The name "${name}" is already taken in this room.`);
+      client.emit('error', `The name "${name}" is already taken in this room.`);
       return 'Name already taken';
     }
 
     if (isColorTaken) {
-      client.emit('roomJoinFail', `The color "${color}" is already taken in this room.`);
+      client.emit('error', `The color "${color}" is already taken in this room.`);
       return 'Color already taken';
     }
 
     // Add the client to the room
-    this.rooms[room].push({ id: client.id, name: name, color: color });room
+    this.rooms[room].push({ id: client.id, name: name, color: color, callerId: callerId });
     client.join(room);
     client.emit('joinedRoom', `You joined room: ${room}`);
-    this.server.to(room).emit('roomUpdate', `User ${client.id} joined the room`);
+    //this.server.to(room).emit('joinedRoom', `User ${client.id} joined the room`);
+    client.to(room).emit('peerJoined', JSON.stringify({ sender: client.id, name, callerId }));
     console.log(`User ${client.id} ${name} joined room ${room} with color ${color}`);
     return `User ${client.id} ${name} joined room ${room} with color ${color}`;
   }
@@ -86,6 +90,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       return;
     }
     // Relay the message to the other user in the room
-    client.to(room).emit('message', { sender: client.id, message });
+    client.to(room).emit('chessMove', { sender: client.id, message });
   }
 }

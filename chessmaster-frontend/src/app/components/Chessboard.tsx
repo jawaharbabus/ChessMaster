@@ -10,8 +10,10 @@ import React, {
 import { Chess, Square, Piece } from "chess.js";
 import dynamic from "next/dynamic";
 import { Chessboard } from "react-chessboard";
+import ChessTimer from "./ChessTimer";
 import Modal from "react-modal";
 import { BoardOrientation } from "react-chessboard/dist/chessboard/types";
+import "../css/ChessBoard.css";
 
 type SquareStyles = Record<
   string,
@@ -24,6 +26,7 @@ interface ChessBoardProps {
   color: BoardOrientation;
   fen: string;
   isTurn: boolean;
+  time: 10 | 15 | 20 | 30 | null;
   setFen: React.Dispatch<React.SetStateAction<string>>;
   setIsTurn: React.Dispatch<React.SetStateAction<boolean>>;
   sendMessage: (
@@ -34,28 +37,39 @@ interface ChessBoardProps {
 }
 
 // Modal styling (optional)
-const customStyles = {
-  content: {
-    top: "50%",
-    left: "50%",
-    right: "auto",
-    bottom: "auto",
-    marginRight: "-50%",
-    transform: "translate(-50%, -50%)",
-    textAlign: "center",
-    backgroundColor: "#2c3e50", // Dark background
-    color: "#ecf0f1", // Light text
-    borderRadius: "10px",
-    border: "none",
-    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
-  },
-  overlay: {
-    backgroundColor: "rgba(0, 0, 0, 0.75)", // Dimmed overlay
-  },
-};
+// const customStyles = {
+//   content: {
+//     top: "50%",
+//     left: "50%",
+//     right: "auto",
+//     bottom: "auto",
+//     marginRight: "-50%",
+//     transform: "translate(-50%, -50%)",
+//     textAlign: "center",
+//     backgroundColor: "#2c3e50", // Dark background
+//     color: "#ecf0f1", // Light text
+//     borderRadius: "10px",
+//     border: "none",
+//     boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
+//   },
+//   overlay: {
+//     backgroundColor: "rgba(0, 0, 0, 0.75)", // Dimmed overlay
+//   },
+// };
+
 const ChessBoard: FC<ChessBoardProps> = forwardRef(
   (
-    { userName, roomName, color, fen, isTurn, setFen, setIsTurn, sendMessage },
+    {
+      userName,
+      roomName,
+      color,
+      fen,
+      isTurn,
+      time,
+      setFen,
+      setIsTurn,
+      sendMessage,
+    },
     ref
   ) => {
     const [game, setGame] = useState(new Chess());
@@ -127,22 +141,76 @@ const ChessBoard: FC<ChessBoardProps> = forwardRef(
     const restartGame = () => {
       const newGame = new Chess();
       setGame(newGame);
-      setFen("start");
+      setFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
       setHighlightedSquares({});
       setGameOverMessage(null);
     };
 
+    // return (
+    //   <div>
+    //     <ChessTimer timeInMinutes={time || 10} position="top" />
+    //     <Chessboard
+    //       position={fen}
+    //       onPieceDrop={onDrop}
+    //       boardOrientation={color}
+    //       arePiecesDraggable={true}
+    //       customSquareStyles={highlightedSquares}
+    //       boardWidth={700}
+    //       onPieceClick={handlePieceClick}
+    //     />
+    //     <ChessTimer timeInMinutes={time || 10} position="bottom" />
+    //     {gameOverMessage && (
+    //       <Modal
+    //         isOpen={!!gameOverMessage}
+    //         onRequestClose={() => setGameOverMessage(null)}
+    //         style={customStyles}
+    //         contentLabel="Game Over"
+    //       >
+    //         <h2>{gameOverMessage}</h2>
+    //         <button onClick={restartGame} style={{ marginTop: "1rem" }}>
+    //           Restart Game
+    //         </button>
+    //       </Modal>
+    //     )}
+    //   </div>
+    // );
     return (
-      <div>
-        <Chessboard
-          position={fen}
-          onPieceDrop={onDrop}
-          boardOrientation={color}
-          arePiecesDraggable={true}
-          customSquareStyles={highlightedSquares}
-          boardWidth={700}
-          onPieceClick={handlePieceClick}
-        />
+      <div className="chess-layout">
+        {/* Left Panel: Timers and future game information */}
+        <div className="left-panel">
+          <div className="top-timer">
+            <ChessTimer timeInMinutes={time || 10} position="top" />
+          </div>
+          <div className="game-info">
+            <p>Game Info / Captured Pieces / Hints</p>
+            {/* Placeholder for future game-related information */}
+          </div>
+          <div className="bottom-timer">
+            <ChessTimer timeInMinutes={time || 10} position="bottom" />
+          </div>
+        </div>
+
+        {/* Center Panel: Chessboard */}
+        <div className="center-panel">
+          <Chessboard
+            position={fen}
+            onPieceDrop={onDrop}
+            boardOrientation={color}
+            arePiecesDraggable={true}
+            customSquareStyles={highlightedSquares}
+            boardWidth={700}
+            onPieceClick={handlePieceClick}
+          />
+        </div>
+
+        {/* Right Panel: Video Stream */}
+        <div className="right-panel">
+          <div className="video-stream">
+            <video autoPlay muted playsInline className="video-element" />
+          </div>
+        </div>
+
+        {/* Game Over Modal */}
         {gameOverMessage && (
           <Modal
             isOpen={!!gameOverMessage}
