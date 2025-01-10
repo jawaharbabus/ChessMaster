@@ -8,7 +8,6 @@ import React, {
   forwardRef,
 } from "react";
 import { Chess, Square, Piece } from "chess.js";
-import dynamic from "next/dynamic";
 import { Chessboard } from "react-chessboard";
 import ChessTimer from "./ChessTimer";
 import Modal from "react-modal";
@@ -32,7 +31,11 @@ interface ChessBoardProps {
   ) => void;
 }
 
-const ChessBoard: FC<ChessBoardProps> = forwardRef(
+interface ChessBoardRef {
+  movePiece: (sourceSquare: string, targetSquare: string) => boolean;
+}
+
+const ChessBoard = forwardRef<ChessBoardRef, ChessBoardProps>(
   ({ userName, roomName, color, time, sendMessage }, ref) => {
     const [game, setGame] = useState(new Chess());
     const [highlightedSquares, setHighlightedSquares] = useState<SquareStyles>(
@@ -79,8 +82,8 @@ const ChessBoard: FC<ChessBoardProps> = forwardRef(
       return true;
     };
 
-    const handlePieceClick = (piece: Piece, square: Square): any => {
-      const moves = game.moves({ square, verbose: true });
+    const handlePieceClick = (piece: string, square: string): any => {
+      const moves = game.moves({ square: square as Square, verbose: true });
 
       if (moves.length === 0) {
         setHighlightedSquares({}); // No moves to highlight

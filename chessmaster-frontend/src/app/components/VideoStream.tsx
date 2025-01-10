@@ -13,13 +13,15 @@ import VideoPlaceHolder from "./VideoPlaceHolder";
 
 interface VideoStreamProps {
   myUniqueId: string;
-  myName: string;
+  // myName: string;
 }
-const VideoStream: FC<VideoStreamProps> = forwardRef(
-  (
-    { myUniqueId }: VideoStreamProps,
-    ref: React.Ref<{ handleCall: (idToCall: string) => void }>
-  ) => {
+
+interface VideoStreamRef {
+  handleCall: (idToCall: string) => void;
+}
+
+const VideoStream = forwardRef<VideoStreamRef, VideoStreamProps>(
+  ({ myUniqueId }, ref) => {
     const myVideoRef = useRef<HTMLVideoElement>(null);
     const callingVideoRef = useRef<HTMLVideoElement>(null);
     const [peerInstance, setPeerInstance] = useState<Peer | null>(null);

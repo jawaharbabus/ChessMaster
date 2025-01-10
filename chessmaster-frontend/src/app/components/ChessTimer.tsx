@@ -16,8 +16,8 @@ const ChessTimer: FC<ChessTimerProps> = ({
   isTurn,
   gameOverCallback,
 }) => {
-  //const [timeLeft, setTimeLeft] = useState(timeInMinutes * 60); // Convert minutes to seconds
-  const [timeLeft, setTimeLeft] = useState(60);
+  const [timeLeft, setTimeLeft] = useState(timeInMinutes * 60); // Convert minutes to seconds
+  // const [timeLeft, setTimeLeft] = useState(60);
   useEffect(() => {
     const timer = setInterval(() => {
       if (isTurn) setTimeLeft((prevTime) => Math.max(prevTime - 1, 0));

@@ -15,26 +15,47 @@ interface Props {
   title?: string; // Optional prop for title
 }
 
-const Homepage: FC<Props> = ({ title = "Default Title" }) => {
+interface HomepageProps {
+  title?: string;
+}
+
+interface ChessBoardRef {
+  movePiece: (sourceSquare: string, targetSquare: string) => boolean;
+}
+
+interface VideoStreamRef {
+  handleCall: (idToCall: string) => void;
+}
+
+interface Message {
+  message: string;
+}
+
+interface RoomJoinedMessage {
+  color: typeColor;
+}
+
+interface MemberJoinedMessage {
+  callerId: string;
+}
+
+const Homepage = () => {
   // variables
   // Replace the plain variables with state
-  const [name, setName] = useState("");
-  const [room, setRoom] = useState("");
+  const [name, setName] = useState<string>("");
+  const [room, setRoom] = useState<string>("");
   let gameTime: typeTime = null;
 
   // Refs
-  const chessBoardRef = useRef<{
-    movePiece: (sourceSquare: string, targetSquare: string) => boolean;
-  }>(null);
-  const VideoStreamRef = useRef<{
-    handleCall: (idToCall: string) => void;
-  }>(null);
+  const chessBoardRef = useRef<ChessBoardRef>(null);
+  const VideoStreamRef = useRef<VideoStreamRef>(null);
 
   // State
   const [isGameStarted, setIsGameStarted] = useState<boolean>(false);
   const [color, setColor] = useState<typeColor>("white");
 
-  const generateRandomString = () => Math.random().toString(36).substring(2);
+  const generateRandomString = (): string =>
+    Math.random().toString(36).substring(2);
   const callerId = useMemo(() => generateRandomString(), []);
 
   // helpers
@@ -42,7 +63,7 @@ const Homepage: FC<Props> = ({ title = "Default Title" }) => {
     roomName: string,
     sourceSquare: string,
     targetSquare: string
-  ) => {
+  ): void => {
     console.log("Sending message", roomName, sourceSquare, targetSquare);
     socketService.sendMessage(
       roomName,
@@ -58,7 +79,7 @@ const Homepage: FC<Props> = ({ title = "Default Title" }) => {
     roomName: string,
     color: typeColor,
     time: typeTime
-  ) => {
+  ): void => {
     userName = userName.trim();
     roomName = roomName.trim();
     setName(userName);
@@ -67,7 +88,7 @@ const Homepage: FC<Props> = ({ title = "Default Title" }) => {
     socketService.createRoom(userName, roomName, color, time, callerId);
   };
 
-  const handleJoinRoom = (userName: string, roomName: string) => {
+  const handleJoinRoom = (userName: string, roomName: string): void => {
     userName = userName.trim();
     roomName = roomName.trim();
     setName(userName);
@@ -76,7 +97,7 @@ const Homepage: FC<Props> = ({ title = "Default Title" }) => {
   };
 
   //Event Listener callbacks
-  const onChessMove = (msg: any) => {
+  const onChessMove = (msg: Message): void => {
     const parsedMessage = JSON.parse(msg.message);
     const { sourceSquare, targetSquare } = parsedMessage;
     if (chessBoardRef.current) {
@@ -84,17 +105,17 @@ const Homepage: FC<Props> = ({ title = "Default Title" }) => {
     }
   };
 
-  const onStartGame = (msg: any) => {
+  const onStartGame = (msg: any): void => {
     setIsGameStarted(true);
   };
 
-  const onRoomJoined = (msg: any) => {
-    let parsed = JSON.parse(msg);
+  const onRoomJoined = (msg: string): void => {
+    const parsed: RoomJoinedMessage = JSON.parse(msg);
     setColor(parsed.color);
   };
 
-  const onMemberJoined = (msg: any) => {
-    let parsed = JSON.parse(msg);
+  const onMemberJoined = (msg: string): void => {
+    const parsed: MemberJoinedMessage = JSON.parse(msg);
     setTimeout(() => {
       console.log("memberJoined", parsed);
       if (VideoStreamRef.current) {
@@ -103,7 +124,7 @@ const Homepage: FC<Props> = ({ title = "Default Title" }) => {
     }, 5000);
   };
 
-  const onError = (err: any) => {
+  const onError = (err: any): void => {
     alert(`Error: ${err}`);
   };
 

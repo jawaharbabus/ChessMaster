@@ -1,0 +1,45 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+chessmaster-frontend/node_modules
+chessmaster-frontend/.pnp
+chessmaster-frontend.pnp.*
+chessmaster-frontend/.yarn/*
+!chessmaster-frontend/.yarn/patches
+!chessmaster-frontend/.yarn/plugins
+!chessmaster-frontend/.yarn/releases
+!chessmaster-frontend/.yarn/versions
+
+# testing
+chessmaster-frontend/coverage
+
+# next.js
+chessmaster-frontend/.next/
+chessmaster-frontend/out/
+chessmaster-frontend/next
+
+# production
+chessmaster-frontend/build
+
+# misc
+chessmaster-frontend/.DS_Store
+chessmaster-frontend/*.pem
+
+# debug
+chessmaster-frontend/npm-debug.log*
+chessmaster-frontend/yarn-debug.log*
+chessmaster-frontend/yarn-error.log*
+chessmaster-frontend/.pnpm-debug.log*
+
+# env files (can opt-in for committing if needed)
+chessmaster-frontend/.env*
+
+# vercel
+chessmaster-frontend/.vercel
+
+# typescript
+chessmaster-frontend/*.tsbuildinfo
+chessmaster-frontend/next-env.d.ts
+
+# certificates
+chessmaster-frontend/certificates
