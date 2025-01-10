@@ -6,18 +6,32 @@ import "../css/ChessTimer.css";
 interface ChessTimerProps {
   timeInMinutes: 10 | 15 | 20 | 30; // Time in minutes
   position: "top" | "bottom"; // Display position
+  isTurn: boolean;
+  gameOverCallback: () => void;
 }
 
-const ChessTimer: FC<ChessTimerProps> = ({ timeInMinutes, position }) => {
-  const [timeLeft, setTimeLeft] = useState(timeInMinutes * 60); // Convert minutes to seconds
-
+const ChessTimer: FC<ChessTimerProps> = ({
+  timeInMinutes,
+  position,
+  isTurn,
+  gameOverCallback,
+}) => {
+  //const [timeLeft, setTimeLeft] = useState(timeInMinutes * 60); // Convert minutes to seconds
+  const [timeLeft, setTimeLeft] = useState(60);
   useEffect(() => {
     const timer = setInterval(() => {
-      setTimeLeft((prevTime) => Math.max(prevTime - 1, 0));
+      if (isTurn) setTimeLeft((prevTime) => Math.max(prevTime - 1, 0));
     }, 1000);
 
     return () => clearInterval(timer); // Cleanup interval on unmount
-  }, []);
+  }, [isTurn]);
+
+  // Check if time has run out
+  useEffect(() => {
+    if (timeLeft === 0) {
+      gameOverCallback();
+    }
+  }, [timeLeft, gameOverCallback]);
 
   const formatTime = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);

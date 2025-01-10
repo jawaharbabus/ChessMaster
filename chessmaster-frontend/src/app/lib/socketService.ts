@@ -1,69 +1,55 @@
-import { on } from "events";
+// socketService.ts
 import { io, Socket } from "socket.io-client";
+
+type typeColor = "white" | "black";
+type typeTime = 10 | 15 | 20 | 30 | null;
 
 class SocketService {
   private socket: Socket | null = null;
 
-  // Connect to the Socket.IO server
-  connect(url: string): void {
+  connect(url: string) {
     if (!this.socket) {
       this.socket = io(url,{
         rejectUnauthorized: false,
       });
-
-      this.socket.on("connect",()=>{
-        console.log("Connected to WebSocket server");
-        });
-
-      this.socket.on("disconnect", () => {
-        console.log("Disconnected from WebSocket server");
-      });
     }
   }
 
-  // Disconnect from the server
-  disconnect(): void {
-    if (this.socket) {
-      this.socket.disconnect();
-      this.socket = null;
-      console.log("Socket disconnected");
-    }
+  disconnect() {
+    this.socket?.disconnect();
+    this.socket = null;
   }
 
-  // Join a specific chat room
-  joinRoom(room: string, name: string, color: "white"|"black",callerId: string): void {
-    if (this.socket) {
-      console.log(`Joining room ${room} as ${name} with color ${color}`);
-      this.socket.emit("joinRoom", {room,name,color,callerId});
-    }
-  }   
-
-  // Leave a specific chat room
-  leaveRoom(room: string): void {
-    if (this.socket) {
-      this.socket.emit("leaveRoom", room);
-    }
+  createRoom(name: string, roomName: string, color: typeColor, time: typeTime, callerId: string) {
+    this.socket?.emit('createRoom', { name, roomName, color, callerId, time });
   }
 
-  // Send a message to a specific chat room
+  joinRoom(name: string, roomName: string, callerId: string) {
+    this.socket?.emit('joinRoom', {name, roomName, callerId });
+  }
+
   sendMessage(room: string, message: string): void {
     if (this.socket) {
       this.socket.emit("sendMessage", { room, message });
     }
   }
 
-  // Listener for receiving messages
-  onMessageReceived(handleChessMove: (message: any) => void, handleRoomJoin: (message: any) => void, updatePeer: (message:any)=> void, errorCallBack: (message: any) => void): void {
-    if (this.socket) {
-      this.socket.on("chessMove", handleChessMove);
-      this.socket.on("joinedRoom", (msg) => {console.log("joinedRoom", msg); handleRoomJoin(msg)});
-      this.socket.on("peerJoined", updatePeer);
-      this.socket.on("error", errorCallBack);
-    }
+  onMessageReceived(
+    onChessMove: (msg: any) => void,
+    onRoomJoined: (msg: any) => void,
+    onMemberJoined: (msg: any) => void,
+    onStartGame: (msg: any) => void,
+    onError: (err: any) => void,
+  ) {
+    if (!this.socket) return;
 
+    this.socket.on('chessMove', (data) => onChessMove(data));
+    this.socket.on('joinedRoom', (msg) => onRoomJoined(msg));
+    this.socket.on('memberJoined', (msg) => onMemberJoined(msg));
+    this.socket.on('startGame', (msg) => onStartGame(msg));
+    this.socket.on('gameError', (err) => onError(err));
   }
 
-  // Listener for errors
   onError(callback: (error: any) => void): void {
     if (this.socket) {
       this.socket.on("error", callback);

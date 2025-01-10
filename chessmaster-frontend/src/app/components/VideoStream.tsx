@@ -77,11 +77,16 @@ const VideoStream: FC<VideoStreamProps> = forwardRef(
       if (myUniqueId) {
         let peer: Peer;
         if (typeof window !== "undefined") {
-          console.log("peerjs");
+          // console.log("peerjs");
+          console.log("myUniqueId", myUniqueId);
+
           peer = new Peer(myUniqueId, {
             host: `${window.location.hostname}`,
+            //host: "localhost",
+            //host: "3.19.65.120",
             port: 4001,
             path: "/peer",
+            secure: true,
           });
           setPeerInstance(peer);
           //inbound call stream

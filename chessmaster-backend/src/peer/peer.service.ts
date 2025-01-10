@@ -21,5 +21,8 @@ export default class PeerService implements OnModuleInit {
 
   onModuleInit() {
     this.app.use('/peer', this.peerServer);
+    this.peerServer.on('connection', (client) => {
+      console.log(`New peer connected: ${client.getId()}`);
+    });
   }
 }

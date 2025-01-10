@@ -24,11 +24,7 @@ interface ChessBoardProps {
   userName: string;
   roomName: string;
   color: BoardOrientation;
-  fen: string;
-  isTurn: boolean;
   time: 10 | 15 | 20 | 30 | null;
-  setFen: React.Dispatch<React.SetStateAction<string>>;
-  setIsTurn: React.Dispatch<React.SetStateAction<boolean>>;
   sendMessage: (
     room: string,
     sourceSquare: string,
@@ -36,47 +32,18 @@ interface ChessBoardProps {
   ) => void;
 }
 
-// Modal styling (optional)
-// const customStyles = {
-//   content: {
-//     top: "50%",
-//     left: "50%",
-//     right: "auto",
-//     bottom: "auto",
-//     marginRight: "-50%",
-//     transform: "translate(-50%, -50%)",
-//     textAlign: "center",
-//     backgroundColor: "#2c3e50", // Dark background
-//     color: "#ecf0f1", // Light text
-//     borderRadius: "10px",
-//     border: "none",
-//     boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
-//   },
-//   overlay: {
-//     backgroundColor: "rgba(0, 0, 0, 0.75)", // Dimmed overlay
-//   },
-// };
-
 const ChessBoard: FC<ChessBoardProps> = forwardRef(
-  (
-    {
-      userName,
-      roomName,
-      color,
-      fen,
-      isTurn,
-      time,
-      setFen,
-      setIsTurn,
-      sendMessage,
-    },
-    ref
-  ) => {
+  ({ userName, roomName, color, time, sendMessage }, ref) => {
     const [game, setGame] = useState(new Chess());
     const [highlightedSquares, setHighlightedSquares] = useState<SquareStyles>(
       {}
     );
     const [gameOverMessage, setGameOverMessage] = useState<string | null>(null);
+    const [isTurn, setIsTurn] = useState<boolean>(color === "white");
+    const [fen, setFen] = useState(
+      "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+    );
+    const [timerMountKey, setTimerMountKey] = useState(0);
 
     useImperativeHandle(ref, () => ({
       movePiece,
@@ -86,6 +53,11 @@ const ChessBoard: FC<ChessBoardProps> = forwardRef(
       console.log("FEN", fen);
       game.load(fen);
     }, [fen]);
+
+    const gameOverCallback = () => {
+      const winner = game.turn() === "w" ? "Black" : "White"; // The current turn's opponent wins
+      setGameOverMessage(`${winner} wins!`);
+    };
 
     const movePiece = (sourceSquare: string, targetSquare: string) => {
       const move = game.move({
@@ -98,8 +70,7 @@ const ChessBoard: FC<ChessBoardProps> = forwardRef(
       setFen(game.fen());
       // Check for game over conditions
       if (game.isCheckmate()) {
-        const winner = game.turn() === "w" ? "Black" : "White"; // The current turn's opponent wins
-        setGameOverMessage(`${winner} wins by checkmate!`);
+        gameOverCallback();
       } else if (game.isDraw()) {
         setGameOverMessage("The game is a draw!");
       }
@@ -144,52 +115,34 @@ const ChessBoard: FC<ChessBoardProps> = forwardRef(
       setFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
       setHighlightedSquares({});
       setGameOverMessage(null);
+      setIsTurn(color === "white");
+      setTimerMountKey((prev) => prev + 1);
     };
 
-    // return (
-    //   <div>
-    //     <ChessTimer timeInMinutes={time || 10} position="top" />
-    //     <Chessboard
-    //       position={fen}
-    //       onPieceDrop={onDrop}
-    //       boardOrientation={color}
-    //       arePiecesDraggable={true}
-    //       customSquareStyles={highlightedSquares}
-    //       boardWidth={700}
-    //       onPieceClick={handlePieceClick}
-    //     />
-    //     <ChessTimer timeInMinutes={time || 10} position="bottom" />
-    //     {gameOverMessage && (
-    //       <Modal
-    //         isOpen={!!gameOverMessage}
-    //         onRequestClose={() => setGameOverMessage(null)}
-    //         style={customStyles}
-    //         contentLabel="Game Over"
-    //       >
-    //         <h2>{gameOverMessage}</h2>
-    //         <button onClick={restartGame} style={{ marginTop: "1rem" }}>
-    //           Restart Game
-    //         </button>
-    //       </Modal>
-    //     )}
-    //   </div>
-    // );
     return (
       <div className="chess-layout">
-        {/* Left Panel: Timers and future game information */}
+        {/* Left Panel */}
         <div className="left-panel">
-          <div className="top-timer">
-            <ChessTimer timeInMinutes={time || 10} position="top" />
+          <div className="timer top-timer">
+            <ChessTimer
+              key={timerMountKey}
+              timeInMinutes={time || 10}
+              position="top"
+              isTurn={!isTurn}
+              gameOverCallback={gameOverCallback}
+            />
           </div>
-          <div className="game-info">
-            <p>Game Info / Captured Pieces / Hints</p>
-            {/* Placeholder for future game-related information */}
-          </div>
-          <div className="bottom-timer">
-            <ChessTimer timeInMinutes={time || 10} position="bottom" />
+          <div className="game-info">Game Info / Captured Pieces / Hints</div>
+          <div className="timer bottom-timer">
+            <ChessTimer
+              key={timerMountKey}
+              timeInMinutes={time || 10}
+              position="bottom"
+              isTurn={isTurn}
+              gameOverCallback={gameOverCallback}
+            />
           </div>
         </div>
-
         {/* Center Panel: Chessboard */}
         <div className="center-panel">
           <Chessboard
@@ -202,20 +155,17 @@ const ChessBoard: FC<ChessBoardProps> = forwardRef(
             onPieceClick={handlePieceClick}
           />
         </div>
-
         {/* Right Panel: Video Stream */}
         <div className="right-panel">
           <div className="video-stream">
             <video autoPlay muted playsInline className="video-element" />
           </div>
         </div>
-
-        {/* Game Over Modal */}
         {gameOverMessage && (
           <Modal
             isOpen={!!gameOverMessage}
             onRequestClose={() => setGameOverMessage(null)}
-            style={customStyles}
+            className="gameOverModal"
             contentLabel="Game Over"
           >
             <h2>{gameOverMessage}</h2>
